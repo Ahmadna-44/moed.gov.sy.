@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>وثيقة علامات رسمية</title>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: white; margin: 0; padding: 20px; color: black; }
+        .print-page { width: 100%; max-width: 800px; margin: 0 auto; border: 3px double #000; padding: 20px; box-sizing: border-box; }
+        .header-table { width: 100%; border: none; margin-bottom: 20px; }
+        .header-table td { border: none; text-align: center; vertical-align: middle; }
+        .logo { width: 70px; }
+        h1, h2, h3 { margin: 5px 0; }
+        
+        table.data-table, table.scores-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        table.data-table th, table.data-table td, table.scores-table th, table.scores-table td { border: 1px solid black; padding: 8px; text-align: center; }
+        table.data-table th { background: #f2f2f2; }
+        table.scores-table th { background: #e6e6e6; }
+        
+        .barcode-container { text-align: center; margin-top: 30px; }
+        .failed-score { color: red; font-weight: bold; }
+        
+        @media print {
+            body { padding: 0; }
+            .print-page { border: 2px solid #000; }
+            .no-print { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="no-print" style="text-align: center; margin-bottom: 20px;">
+        <button onclick="window.print()" style="padding: 10px 20px; font-size:16px; background:#1e3a8a; color:white; border:none; cursor:pointer; border-radius:5px;">اضغط هنا للطباعة فوراً</button>
+    </div>
+
+    <div class="print-page">
+        <table class="header-table">
+            <tr>
+                <td style="width: 33%;">
+                    <h3>الجمهورية العربية السورية</h3>
+                    <h3>وزارة التربية والتعليم</h3>
+                </td>
+                <td style="width: 33%;">
+                    <img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/8/82/Coat_of_arms_of_Syria.svg" alt="شعار الدولة">
+                </td>
+                <td style="width: 33%;">
+                    <h2>وثيقة علامات رسمية</h2>
+                    <p>امتحانات الشهادة الثانوية العامة</p>
+                </td>
+            </tr>
+        </table>
+
+        <table class="data-table">
+            <tr>
+                <th>الاسم الثلاثي</th>
+                <th>اسم الأم</th>
+                <th>رقم الاكتتاب</th>
+                <th>المحافظة</th>
+                <th>الرقم الوطني</th>
+                <th>المعدل</th>
+            </tr>
+            <tr>
+                <td>{{ student.name }}</td>
+                <td>{{ student.mother_name }}</td>
+                <td>{{ student.seat_number }}</td>
+                <td>{{ student.governorate }}</td>
+                <td>{{ student.national_id }}</td>
+                <td><strong>{{ analysis.average }}%</strong></td>
+            </tr>
+        </table>
+
+        <h3 style="margin-top: 25px; border-bottom: 1px dashed #000; padding-bottom: 5px;">بيان الدرجات والتفاصيل</h3>
+
+        <table class="scores-table">
+            <thead>
+                <tr>
+                    <th>المادة</th>
+                    <th>الحد الأعلى</th>
+                    <th>الحد الأدنى للنجاح</th>
+                    <th>الدرجة المستحقة</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>الرياضيات</td><td>600</td><td>240</td>
+                    <td class="{% if 'math' in analysis.failed_subjects %}failed-score{% endif %}">{{ student.math }}</td>
+                </tr>
+                <tr>
+                    <td>الفيزياء</td><td>400</td><td>160</td>
+                    <td class="{% if 'physics' in analysis.failed_subjects %}failed-score{% endif %}">{{ student.physics }}</td>
+                </tr>
+                <tr>
+                    <td>الكيمياء</td><td>200</td><td>80</td>
+                    <td class="{% if 'chemistry' in analysis.failed_subjects %}failed-score{% endif %}">{{ student.chemistry }}</td>
+                </tr>
+                <tr>
+                    <td>اللغة الفرنسية</td><td>300</td><td>120</td>
+                    <td class="{% if 'french' in analysis.failed_subjects %}failed-score{% endif %}">{{ student.french }}</td>
+                </tr>
+                <tr>
+                    <td>اللغة الانكليزية</td><td>300</td><td>120</td>
+                    <td class="{% if 'english' in analysis.failed_subjects %}failed-score{% endif %}">{{ student.english }}</td>
+                </tr>
+                <tr>
+                    <td>اللغة العربية</td><td>400</td><td>160</td>
+                    <td class="{% if 'arabic' in analysis.failed_subjects %}failed-score{% endif %}">{{ student.arabic }}</td>
+                </tr>
+                <tr>
+                    <td>علم الأحياء</td><td>300</td><td>120</td>
+                    <td class="{% if 'biology' in analysis.failed_subjects %}failed-score{% endif %}">{{ student.biology }}</td>
+                </tr>
+                <tr>
+                    <td>التربية الوطنية</td><td>200</td><td>80</td>
+                    <td class="{% if 'national_edu' in analysis.failed_subjects %}failed-score{% endif %}">{{ student.national_edu }}</td>
+                </tr>
+                <tr>
+                    <td>التربية الدينية</td><td>200</td><td>80</td>
+                    <td class="{% if 'religion' in analysis.failed_subjects %}failed-score{% endif %}">{{ student.religion }}</td>
+                </tr>
+                <tr style="font-weight: bold; background: #fafafa;">
+                    <td colspan="3">المجموع العام (من أصل 2900)</td>
+                    <td>{{ analysis.general_total }}</td>
+                </tr>
+                <tr style="font-weight: bold; background: #f2f2f2;">
+                    <td colspan="3">النتيجة النهائية العامة</td>
+                    <td>{{ analysis.status }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="barcode-container">
+            <svg id="barcode"></svg>
+            <p style="font-size: 11px; margin: 2px 0;">وثيقة إلكترونية مصدقة برقم الحفظ الرقمي</p>
+        </div>
+    </div>
+
+    <script>
+        JsBarcode("#barcode", "{{ student.seat_number }}-{{ student.national_id }}", {
+            format: "CODE128",
+            width: 1.5,
+            height: 40,
+            displayValue: true
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نتيجة الطالب - وزارة التربية</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root { --primary: #1e3a8a; --bg: #f1f5f9; --success: #22c55e; --danger: #ef4444; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; }
+        .card { background: white; width: 100%; max-width: 600px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); padding: 20px; box-sizing: border-box; margin-bottom: 20px; }
+        .logo-area { text-align: center; margin-bottom: 15px; }
+        .logo-area img { width: 60px; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; background: #f8fafc; padding: 15px; border-radius: 10px; border-right: 5px solid var(--primary); }
+        .info-item { font-size: 14px; color: #475569; }
+        .info-item span { font-weight: bold; color: #0f172a; }
+        .status-banner { text-align: center; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 18px; margin-bottom: 20px; }
+        .status-success { background: #dcfce7; color: #15803d; }
+        .status-danger { background: #fee2e2; color: #b91c1c; }
+        
+        .subject-box { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .subject-box.failed { border-color: var(--danger); background: #fff5f5; }
+        .subject-name { font-weight: bold; color: #334155; }
+        .subject-box.failed .subject-name { color: var(--danger); }
+        .subject-score { font-size: 18px; font-weight: 800; color: var(--primary); }
+        .subject-box.failed .subject-score { color: var(--danger); }
+        .limits-indicator { display: flex; flex-direction: column; font-size: 11px; text-align: left; }
+        .limit-up { color: var(--success); font-weight: bold; }
+        .limit-down { color: var(--danger); font-weight: bold; }
+        
+        .actions { display: flex; gap: 10px; width: 100%; max-width: 600px; }
+        .btn { flex: 1; padding: 12px; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; text-align: center; text-decoration: none; font-weight: bold; }
+        .btn-obj { background: #f59e0b; color: white; }
+        .btn-print { background: var(--primary); color: white; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <div class="logo-area">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Coat_of_arms_of_Syria.svg" alt="الشعار">
+            <h3 style="margin:5px 0; color: var(--primary);">وزارة التربية والتعليم السورية</h3>
+        </div>
+
+        <div class="info-grid">
+            <div class="info-item">الاسم الثلاثي: <span>{{ student.name }}</span></div>
+            <div class="info-item">اسم الأم: <span>{{ student.mother_name }}</span></div>
+            <div class="info-item">رقم الاكتتاب: <span>{{ student.seat_number }}</span></div>
+            <div class="info-item">المحافظة: <span>{{ student.governorate }}</span></div>
+            <div class="info-item">الرقم الوطني: <span>{{ student.national_id }}</span></div>
+            <div class="info-item">المعدل: <span style="color:blue;">{{ analysis.average }}%</span></div>
+        </div>
+
+        {% if 'راسب' in analysis.status %}
+            <div class="status-banner status-danger"><i class="fa-solid fa-circle-xmark"></i> الحالة: {{ analysis.status }}</div>
+        {% else %}
+            <div class="status-banner status-success"><i class="fa-solid fa-circle-check"></i> الحالة: {{ analysis.status }} 🎉</div>
+            <script>
+                setTimeout(() => {
+                    confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+                }, 300);
+            </script>
+        {% endif %}
+
+        <h4 style="color: #64748b; margin-bottom: 10px;">تفاصيل المواد والدرجات:</h4>
+
+        <div class="subject-box {% if 'math' in analysis.failed_subjects %}failed{% endif %}">
+            <div class="subject-name">الرياضيات</div>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div class="limits-indicator">
+                    <span class="limit-up"><i class="fa-solid fa-arrow-up"></i> 600</span>
+                    <span class="limit-down"><i class="fa-solid fa-arrow-down"></i> 240</span>
+                </div>
+                <div class="subject-score">{{ student.math }}</div>
+            </div>
+        </div>
+
+        <div class="subject-box {% if 'physics' in analysis.failed_subjects %}failed{% endif %}">
+            <div class="subject-name">الفيزياء</div>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div class="limits-indicator">
+                    <span class="limit-up"><i class="fa-solid fa-arrow-up"></i> 400</span>
+                    <span class="limit-down"><i class="fa-solid fa-arrow-down"></i> 160</span>
+                </div>
+                <div class="subject-score">{{ student.physics }}</div>
+            </div>
+        </div>
+
+        <div class="subject-box {% if 'chemistry' in analysis.failed_subjects %}failed{% endif %}">
+            <div class="subject-name">الكيمياء</div>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div class="limits-indicator">
+                    <span class="limit-up"><i class="fa-solid fa-arrow-up"></i> 200</span>
+                    <span class="limit-down"><i class="fa-solid fa-arrow-down"></i> 80</span>
+                </div>
+                <div class="subject-score">{{ student.chemistry }}</div>
+            </div>
+        </div>
+
+        <div class="subject-box {% if 'french' in analysis.failed_subjects %}failed{% endif %}">
+            <div class="subject-name">اللغة الفرنسية</div>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div class="limits-indicator">
+                    <span class="limit-up"><i class="fa-solid fa-arrow-up"></i> 300</span>
+                    <span class="limit-down"><i class="fa-solid fa-arrow-down"></i> 120</span>
+                </div>
+                <div class="subject-score">{{ student.french }}</div>
+            </div>
+        </div>
+
+        <div class="subject-box {% if 'english' in analysis.failed_subjects %}failed{% endif %}">
+            <div class="subject-name">اللغة الانكليزية</div>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div class="limits-indicator">
+                    <span class="limit-up"><i class="fa-solid fa-arrow-up"></i> 300</span>
+                    <span class="limit-down"><i class="fa-solid fa-arrow-down"></i> 120</span>
+                </div>
+                <div class="subject-score">{{ student.english }}</div>
+            </div>
+        </div>
+
+        <div class="subject-box {% if 'arabic' in analysis.failed_subjects %}failed{% endif %}">
+            <div class="subject-name">اللغة العربية</div>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div class="limits-indicator">
+                    <span class="limit-up"><i class="fa-solid fa-arrow-up"></i> 400</span>
+                    <span class="limit-down"><i class="fa-solid fa-arrow-down"></i> 160</span>
+                </div>
+                <div class="subject-score">{{ student.arabic }}</div>
+            </div>
+        </div>
+
+        <div class="subject-box {% if 'biology' in analysis.failed_subjects %}failed{% endif %}">
+            <div class="subject-name">علم الأحياء</div>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div class="limits-indicator">
+                    <span class="limit-up"><i class="fa-solid fa-arrow-up"></i> 300</span>
+                    <span class="limit-down"><i class="fa-solid fa-arrow-down"></i> 120</span>
+                </div>
+                <div class="subject-score">{{ student.biology }}</div>
+            </div>
+        </div>
+
+        <div class="subject-box {% if 'national_edu' in analysis.failed_subjects %}failed{% endif %}">
+            <div class="subject-name">التربية الوطنية</div>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div class="limits-indicator">
+                    <span class="limit-up"><i class="fa-solid fa-arrow-up"></i> 200</span>
+                    <span class="limit-down"><i class="fa-solid fa-arrow-down"></i> 80</span>
+                </div>
+                <div class="subject-score">{{ student.national_edu }}</div>
+            </div>
+        </div>
+
+        <div class="subject-box {% if 'religion' in analysis.failed_subjects %}failed{% endif %}">
+            <div class="subject-name">التربية الدينية</div>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div class="limits-indicator">
+                    <span class="limit-up"><i class="fa-solid fa-arrow-up"></i> 200</span>
+                    <span class="limit-down"><i class="fa-solid fa-arrow-down"></i> 80</span>
+                </div>
+                <div class="subject-score">{{ student.religion }}</div>
+            </div>
+        </div>
+
+        <div class="subject-box" style="background: #e2e8f0; border: none;">
+            <div class="subject-name">المجموع (بدون ديانة)</div>
+            <div class="subject-score" style="font-size: 16px;">{{ analysis.total_score }} / 2700</div>
+        </div>
+        <div class="subject-box" style="background: var(--primary); border: none;">
+            <div class="subject-name" style="color: white;">المجموع العام الإجمالي</div>
+            <div class="subject-score" style="color: white;">{{ analysis.general_total }} / 2900</div>
+        </div>
+    </div>
+
+    <div class="actions">
+        <a href="/object/{{ student.seat_number }}" class="btn btn-obj"><i class="fa-solid fa-gavel"></i> تقديم اعتراض</a>
+        <a href="/print/{{ student.seat_number }}" target="_blank" class="btn btn-print"><i class="fa-solid fa-print"></i> طباعة النتيجة</a>
+    </div>
+
+</body>
+</html>
